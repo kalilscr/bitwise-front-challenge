@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGithubStore } from '../stores/github'
+import { useGithubStore, useGithubReposStore } from '../stores/github'
 
 const router = useRouter()
 const githubStore = useGithubStore()
+const reposStore = useGithubReposStore()
 const username = ref('')
 
 const handleSearch = async () => {
   if (username.value) {
     await githubStore.searchUser(username.value)
-    if (githubStore.user) {
+    await reposStore.searchRepos(username.value)
+    if (githubStore.user && reposStore.repos) {
       router.push('/search')
     }
   }
@@ -45,10 +47,18 @@ const handleSearch = async () => {
         </button>
       </div>
 
-      <div class="flex gap-4 mt-12 fixed bottom-0 left-0 z-20 w-full p-4 md:flex md:items-center md:justify-center md:p-6">
-        <a href="#" class="text-gray-600 hover:text-purple-800"><img src="/src/assets/medium.png" alt="M" class="h-6 mb-6" /></a>
-        <a href="#" class="text-gray-600 hover:text-purple-800"><img src="/src/assets/linkedin.png" alt="in" class="h-6 mb-6" /></a>
-        <a href="#" class="text-gray-600 hover:text-purple-800"><img src="/src/assets/instagram.png" alt="ig" class="h-6 mb-6" /></a>
+      <div
+        class="flex gap-4 mt-12 fixed bottom-0 left-0 z-20 w-full p-4 md:flex md:items-center md:justify-center md:p-6"
+      >
+        <a href="#" class="text-gray-600 hover:text-purple-800"
+          ><img src="/src/assets/medium.png" alt="M" class="h-6 mb-6"
+        /></a>
+        <a href="#" class="text-gray-600 hover:text-purple-800"
+          ><img src="/src/assets/linkedin.png" alt="in" class="h-6 mb-6"
+        /></a>
+        <a href="#" class="text-gray-600 hover:text-purple-800"
+          ><img src="/src/assets/instagram.png" alt="ig" class="h-6 mb-6"
+        /></a>
       </div>
     </div>
   </div>
