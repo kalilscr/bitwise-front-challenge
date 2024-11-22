@@ -1,14 +1,14 @@
 # todo:
 
-create a social media component
-create a input component
-create a button component
-handle new search on search view
-close alert automatically when new valid user is sended
-add tests
-remove axios change for fetch
-improve performance on github store file
-add infinite scrolling on search view table(fetch all repos of user not only 10)
+- create a social media component
+- create a input component
+- create a button component
+- handle new search on search view
+- close alert automatically when new valid user is sended
+- add tests
+- remove axios change for fetch
+- improve performance on github store file
+- add infinite scrolling on search view table(fetch all repos of user not only 10)
 
 # frontend
 
