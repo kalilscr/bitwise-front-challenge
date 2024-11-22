@@ -1,3 +1,15 @@
+# todo:
+
+create a social media component
+create a input component
+create a button component
+handle new search on search view
+close alert automatically when new valid user is sended
+add tests
+remove axios change for fetch
+improve performance on github store file
+add infinite scrolling on search view table(fetch all repos of user not only 10)
+
 # frontend
 
 This template should help get you started developing with Vue 3 in Vite.
