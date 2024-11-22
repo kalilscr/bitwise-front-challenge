@@ -10,13 +10,18 @@ interface GithubUser {
   name: string
 }
 
+interface GithubRepos {
+  name: string
+  qtdCommits: string
+  message: string
+  hash: string
+}
+
 export const useGithubStore = defineStore('github', () => {
   const user = ref<GithubUser | null>(null)
-  const loading = ref(false)
 
   async function searchUser(username: string) {
     const alertStore = useAlertStore()
-    loading.value = true
 
     const headers = {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -32,25 +37,20 @@ export const useGithubStore = defineStore('github', () => {
       user.value = null
       alertStore.showAlert('Nenhum usuário encontrado!')
       console.error(error)
-    } finally {
-      loading.value = false
     }
   }
 
   return {
     user,
-    loading,
     searchUser,
   }
 })
 
 export const useGithubReposStore = defineStore('repositories', () => {
-  const repos = ref<unknown | null>(null)
-  const loading = ref(false)
+  const repos = ref<GithubRepos[] | null>(null)
 
   async function searchRepos(username: string) {
     const alertStore = useAlertStore()
-    loading.value = true
 
     const headers = {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -69,6 +69,7 @@ export const useGithubReposStore = defineStore('repositories', () => {
 
       const repositoriesStats = []
 
+      //refactor this to use promise all for better performance
       for (const repoName of repoNames) {
         const repositoriesData = await axios.get(
           `https://api.github.com/repos/${username}/${repoName}/commits?per_page=1&page=1`,
@@ -104,16 +105,13 @@ export const useGithubReposStore = defineStore('repositories', () => {
       repos.value = repositoriesStats
     } catch (error) {
       repos.value = null
-      alertStore.showAlert('Nenhum repositório encontrado!')
+      alertStore.showAlert('Nenhum repositório do usuário foi encontrado!')
       console.error(error)
-    } finally {
-      loading.value = false
     }
   }
 
   return {
     repos,
-    loading,
     searchRepos,
   }
 })
