@@ -56,7 +56,10 @@ const handleNewSearch = () => {
         </div>
       </div>
 
-      <div v-if="githubStore.user" class="bg-white rounded-sm shadow-lg p-8">
+      <div
+        v-if="githubStore.user"
+        class="max-h-120 bg-white rounded-sm shadow-lg p-8 overflow-scroll"
+      >
         <div class="flex gap-8 mb-8">
           <img
             :src="githubStore.user.avatar_url"
