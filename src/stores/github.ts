@@ -17,6 +17,10 @@ interface GithubRepos {
   hash: string
 }
 
+interface RepoName {
+  name: string
+}
+
 export const useGithubStore = defineStore('github', () => {
   const user = ref<GithubUser | null>(null)
 
@@ -52,7 +56,7 @@ export const useGithubReposStore = defineStore('repositories', () => {
   async function searchRepos(username: string) {
     const alertStore = useAlertStore()
 
-    const headers = {
+    const auth = {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
     }
 
@@ -60,47 +64,37 @@ export const useGithubReposStore = defineStore('repositories', () => {
       const repositories = await axios.get(
         `https://api.github.com/search/repositories?q=user:${username}&sort=updated&per_page=10`,
         {
-          headers: headers,
+          headers: auth,
         },
       )
 
-      const repoNames = repositories.data.items.map((item) => item.name)
-      //const totalPublicRepos = repositories.data.total_count
+      const repoNames: string[] = repositories.data.items.map((item: RepoName) => item.name)
 
-      const repositoriesStats = []
+      const repositoriesStats: GithubRepos[] = await Promise.all(
+        repoNames.map(async (repoName: string) => {
+          const repositoryData = await axios.get(
+            `https://api.github.com/repos/${username}/${repoName}/commits?per_page=1&page=1`,
+            { headers: auth },
+          )
 
-      //refactor this to use promise all for better performance
-      for (const repoName of repoNames) {
-        const repositoriesData = await axios.get(
-          `https://api.github.com/repos/${username}/${repoName}/commits?per_page=1&page=1`,
-          {
-            headers: headers,
-          },
-        )
+          const repoCommitCount = repositoryData.headers.link.split(',')[1].split(/[=\>]/)[2] // catch second element of first split and then split between = and > and catch the third element
 
-        const commitsCountPerRepo = repositoriesData.headers.link.split(',')[1].split(/[=\>]/)[2] // catch second element of first split and then split between = and > and catch the third element
+          // const hash = repositoryData.data[0].sha
+          // const message = repositoryData.data[0].commit.message
+          const latestCommit = repositoryData.data[0]
+          const {
+            sha: hash,
+            commit: { message },
+          } = latestCommit
 
-        const result = repositoriesData.data.map((item) => {
-          const message = item.commit.message
-          const hash = item.sha
-          return { hash: hash, message: message }
-        })
-
-        const data = result.reduce((acc, curr) => {
-          acc = {
-            hash: curr.hash,
-            message: curr.message,
+          return {
+            name: repoName,
+            qtdCommits: repoCommitCount,
+            hash,
+            message,
           }
-          return acc
-        }, {})
-
-        repositoriesStats.push({
-          name: repoName,
-          qtdCommits: commitsCountPerRepo,
-          hash: data.hash,
-          message: data.message,
-        })
-      }
+        }),
+      )
 
       repos.value = repositoriesStats
     } catch (error) {
