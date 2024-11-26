@@ -7,8 +7,8 @@
 - close alert automatically when new valid user is sended
 - add tests
 - remove axios change for fetch
-- improve performance on github store file
 - add infinite scrolling on search view table(fetch all repos of user not only 10)
+- deploy(use cicd)
 
 # frontend
 
